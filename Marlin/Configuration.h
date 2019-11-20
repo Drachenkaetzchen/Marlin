@@ -134,7 +134,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "KittyPrint"
+#define CUSTOM_MACHINE_NAME "PurpleCube"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -473,7 +473,7 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
-  // KittyPrint2
+  // PurpleCube
   #define DEFAULT_Kp 28.19
   #define DEFAULT_Ki 3.03
   #define DEFAULT_Kd 65.59
