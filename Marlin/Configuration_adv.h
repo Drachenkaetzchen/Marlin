@@ -171,7 +171,7 @@
   /**
    * As described above, except for the bed (M140/M190/M303).
    */
-  #define WATCH_BED_TEMP_PERIOD 60                // Seconds
+  #define WATCH_BED_TEMP_PERIOD 120                // Seconds
   #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
@@ -196,56 +196,6 @@
   #if ENABLED(PID_EXTRUSION_SCALING)
     #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
     #define LPQ_MAX_LEN 50
-  #endif
-
-  /**
-   * Add an experimental additional term to the heater power, proportional to the fan speed.
-   * A well-chosen Kf value should add just enough power to compensate for power-loss from the cooling fan.
-   * You can either just add a constant compensation with the DEFAULT_Kf value
-   * or follow the instruction below to get speed-dependent compensation.
-   *
-   * Constant compensation (use only with fanspeeds of 0% and 100%)
-   * ---------------------------------------------------------------------
-   * A good starting point for the Kf-value comes from the calculation:
-   *   kf = (power_fan * eff_fan) / power_heater * 255
-   * where eff_fan is between 0.0 and 1.0, based on fan-efficiency and airflow to the nozzle / heater.
-   *
-   * Example:
-   *   Heater: 40W, Fan: 0.1A * 24V = 2.4W, eff_fan = 0.8
-   *   Kf = (2.4W * 0.8) / 40W * 255 = 12.24
-   *
-   * Fan-speed dependent compensation
-   * --------------------------------
-   * 1. To find a good Kf value, set the hotend temperature, wait for it to settle, and enable the fan (100%).
-   *    Make sure PID_FAN_SCALING_LIN_FACTOR is 0 and PID_FAN_SCALING_ALTERNATIVE_DEFINITION is not enabled.
-   *    If you see the temperature drop repeat the test, increasing the Kf value slowly, until the temperature
-   *    drop goes away. If the temperature overshoots after enabling the fan, the Kf value is too big.
-   * 2. Note the Kf-value for fan-speed at 100%
-   * 3. Determine a good value for PID_FAN_SCALING_MIN_SPEED, which is around the speed, where the fan starts moving.
-   * 4. Repeat step 1. and 2. for this fan speed.
-   * 5. Enable PID_FAN_SCALING_ALTERNATIVE_DEFINITION and enter the two identified Kf-values in
-   *    PID_FAN_SCALING_AT_FULL_SPEED and PID_FAN_SCALING_AT_MIN_SPEED. Enter the minimum speed in PID_FAN_SCALING_MIN_SPEED
-   */
-  //#define PID_FAN_SCALING
-  #if ENABLED(PID_FAN_SCALING)
-    //#define PID_FAN_SCALING_ALTERNATIVE_DEFINITION
-    #if ENABLED(PID_FAN_SCALING_ALTERNATIVE_DEFINITION)
-      // The alternative definition is used for an easier configuration.
-      // Just figure out Kf at fullspeed (255) and PID_FAN_SCALING_MIN_SPEED.
-      // DEFAULT_Kf and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
-
-      #define PID_FAN_SCALING_AT_FULL_SPEED 13.0        //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_Kf
-      #define PID_FAN_SCALING_AT_MIN_SPEED 6.0          //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_Kf
-      #define PID_FAN_SCALING_MIN_SPEED 10.0            // Minimum fan speed at which to enable PID_FAN_SCALING
-
-      #define DEFAULT_Kf (255.0*PID_FAN_SCALING_AT_MIN_SPEED-PID_FAN_SCALING_AT_FULL_SPEED*PID_FAN_SCALING_MIN_SPEED)/(255.0-PID_FAN_SCALING_MIN_SPEED)
-      #define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED-DEFAULT_Kf)/255.0
-
-    #else
-      #define PID_FAN_SCALING_LIN_FACTOR (0)             // Power loss due to cooling = Kf * (fan_speed)
-      #define DEFAULT_Kf 10                              // A constant value added to the PID-tuner
-      #define PID_FAN_SCALING_MIN_SPEED 10               // Minimum fan speed at which to enable PID_FAN_SCALING
-    #endif
   #endif
 #endif
 
@@ -338,7 +288,7 @@
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-//#define FAN_KICKSTART_TIME 100
+#define FAN_KICKSTART_TIME 200
 
 // Some coolers may require a non-zero "off" state.
 //#define FAN_OFF_PWM  1
@@ -1010,8 +960,6 @@
    */
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
-    //#define BACKUP_POWER_SUPPLY       // Backup power / UPS to move the steppers on power loss
-    //#define POWER_LOSS_ZRAISE       2 // (mm) Z axis raise on resume (on power loss with UPS)
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
     //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
@@ -1150,7 +1098,7 @@
      *
      * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
      */
-    //#define SDCARD_CONNECTION LCD
+    #define SDCARD_CONNECTION ONBOARD
   #endif
 
 #endif // SDSUPPORT
@@ -1244,9 +1192,9 @@
 #endif // HAS_GRAPHICAL_LCD
 
 //
-// Touch UI for the FTDI Embedded Video Engine (EVE)
+// Lulzbot Touch UI
 //
-#if ENABLED(TOUCH_UI_FTDI_EVE)
+#if ENABLED(LULZBOT_TOUCH_UI)
   // Display board used
   //#define LCD_FTDI_VM800B35A        // FTDI 3.5" with FT800 (320x240)
   //#define LCD_4DSYSTEMS_4DLCD_FT843 // 4D Systems 4.3" (480x272)
@@ -1298,7 +1246,7 @@
       //#define TOUCH_UI_UTF8_SUPERSCRIPTS  // ¹ ² ³
       //#define TOUCH_UI_UTF8_COPYRIGHT     // © ®
       //#define TOUCH_UI_UTF8_GERMANIC      // ß
-      //#define TOUCH_UI_UTF8_SCANDINAVIAN  // Æ Ð Ø Þ æ ð ø þ
+      //#define TOUCH_UI_UTF8_SCANDINAVIAN  // Æ �? Ø Þ æ ð ø þ
       //#define TOUCH_UI_UTF8_PUNCTUATION   // « » ¿ ¡
       //#define TOUCH_UI_UTF8_CURRENCY      // ¢ £ ¤ ¥
       //#define TOUCH_UI_UTF8_ORDINALS      // º ª
@@ -1366,12 +1314,12 @@
  *
  * Warning: Does not respect endstops!
  */
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_WITHOUT_HOMING
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR_Z  1       // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR_Z  10       // Babysteps are very small. Increase for faster motion.
   #define BABYSTEP_MULTIPLICATOR_XY 1
 
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
@@ -1912,7 +1860,7 @@
   #endif
 
   #if AXIS_IS_TMC(Z)
-    #define Z_CURRENT       800
+    #define Z_CURRENT       1200
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16
     #define Z_RSENSE          0.11
@@ -2062,7 +2010,7 @@
    * Define you own with
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
    */
-  #define CHOPPER_TIMING CHOPPER_DEFAULT_12V
+  #define CHOPPER_TIMING CHOPPER_DEFAULT_24V
 
   /**
    * Monitor Trinamic drivers for error conditions,
@@ -2075,10 +2023,10 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  //#define MONITOR_DRIVER_STATUS
+  #define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    #define CURRENT_STEP_DOWN     50  // [mA]
+    #define CURRENT_STEP_DOWN     0  // [mA]
     #define REPORT_CURRENT_CHANGE
     #define STOP_ON_ERROR
   #endif
@@ -2162,7 +2110,7 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  //#define TMC_DEBUG
+  #define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
@@ -2861,7 +2809,7 @@
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
-//#define PINS_DEBUGGING
+#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
