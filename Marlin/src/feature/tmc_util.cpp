@@ -358,7 +358,7 @@
         #endif
         if (result) {
           #if AXIS_IS_TMC(X)
-            step_current_down(stepperX);
+            //step_current_down(stepperX);
           #endif
           #if AXIS_IS_TMC(X2)
             step_current_down(stepperX2);
@@ -378,7 +378,7 @@
         #endif
         if (result) {
           #if AXIS_IS_TMC(Y)
-            step_current_down(stepperY);
+            //step_current_down(stepperY);
           #endif
           #if AXIS_IS_TMC(Y2)
             step_current_down(stepperY2);
@@ -404,7 +404,7 @@
         #endif
         if (result) {
           #if AXIS_IS_TMC(Z)
-            step_current_down(stepperZ);
+            //step_current_down(stepperZ);
           #endif
           #if AXIS_IS_TMC(Z2)
             step_current_down(stepperZ2);
